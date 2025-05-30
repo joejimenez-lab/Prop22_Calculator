@@ -20,5 +20,5 @@ The calculator will then display:
 - Total earnings with and without tip
 
 ## 🌐 Live Demo
-Linke: _____
+Link: _____
 
