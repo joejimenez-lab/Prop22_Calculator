@@ -20,5 +20,5 @@ The calculator will then display:
 - Total earnings with and without tip
 
 ## 🌐 Live Demo
-Link: _____
+Link: https://joejimenez-lab.github.io/Prop22_Calculator/
 
