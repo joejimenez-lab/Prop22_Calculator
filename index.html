@@ -5,76 +5,547 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Prop 22 Calculator</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Montserrat', sans-serif;
-      background: #f8f9fa;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+      min-height: 100vh;
     }
-    .calculator-container {
-      background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    
+    .calculator-card {
+      background: white;
+      border-radius: 1.5rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(4px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .calculator-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    
+    .input-field {
+      transition: all 0.2s ease;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.75rem;
+    }
+    
+    .input-field:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+      outline: none;
+    }
+    
+    .calculate-btn {
+      background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+      transition: all 0.3s ease;
+    }
+    
+    .calculate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+    }
+    
+    .calculate-btn:active {
+      transform: translateY(0);
+    }
+    
+    .result-card {
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+      border: 1px solid #6ee7b7;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      transform: scale(0.95);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .result-card.show {
+      transform: scale(1);
+      opacity: 1;
+    }
+    
+    .result-item {
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      margin-bottom: 0.5rem;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(167, 243, 208, 0.5);
+    }
+    
+    .result-label {
+      font-weight: 500;
+      color: #065f46;
+    }
+    
+    .result-value {
+      font-weight: 700;
+      color: #047857;
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.8s ease forwards;
+      opacity: 0;
+    }
+    
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+    
+    .slide-up {
+      animation: slideUp 0.5s ease forwards;
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    
+    @keyframes slideUp {
+      to { 
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
+    
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .tooltip .tooltip-text {
+      visibility: hidden;
+      width: 200px;
+      background-color: #1e293b;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 8px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -100px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    .tooltip .tooltip-text::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #1e293b transparent transparent transparent;
+    }
+    
+    .input-group {
+      position: relative;
+    }
+    
+    .input-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+    }
+    
+    .input-with-icon {
+      padding-left: 2.5rem;
+    }
+    
+    .header-gradient {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      color: white;
+      border-radius: 1rem 1rem 0 0;
+    }
+    
+    .animate-typing {
+      overflow: hidden;
+      white-space: nowrap;
+      border-right: 3px solid #3b82f6;
+      animation: typing 3s steps(40) 1s 1 normal both, blink 1s steps(1) infinite;
+      width: 0;
+    }
+    
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 100% }
+    }
+    
+    @keyframes blink {
+      50% { border-color: transparent }
     }
   </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
-  <div class="max-w-xl w-full calculator-container rounded-2xl p-6">
-    <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Prop 22 Guarantee Calculator</h1>
-    <div class="space-y-4">
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Base Pay ($)</label>
-        <input type="number" id="basePay" class="w-full p-2 border rounded-lg mt-1" placeholder="Enter base pay from app">
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Customer Tip ($)</label>
-        <input type="number" id="tip" class="w-full p-2 border rounded-lg mt-1" placeholder="Enter customer tip">
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Active Time</label>
-        <div class="flex gap-2">
-          <input type="number" id="hours" class="w-full p-2 border rounded-lg mt-1" placeholder="Hours">
-          <input type="number" id="minutes" class="w-full p-2 border rounded-lg mt-1" placeholder="Minutes">
-          <input type="number" id="seconds" class="w-full p-2 border rounded-lg mt-1" placeholder="Seconds">
+<body class="py-8 px-4 fade-in">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <header class="text-center mb-8 slide-up" style="animation-delay: 0.2s">
+      <div class="inline-block bg-white px-6 py-3 rounded-full shadow-md mb-4">
+        <div class="flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Prop 22 Calculator</h1>
         </div>
       </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Miles Driven</label>
-        <input type="number" id="miles" class="w-full p-2 border rounded-lg mt-1" placeholder="e.g., 10">
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        Calculate your minimum guaranteed earnings under California Prop 22 legislation
+      </p>
+      <div class="mt-4 flex justify-center">
+        <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          California
+        </span>
       </div>
-      <button onclick="calculateGuarantee()" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition">Calculate Adjustment</button>
-      <div id="result" class="mt-4 text-center text-lg font-semibold text-green-700 hidden"></div>
+    </header>
+
+    <!-- Calculator Card -->
+    <div class="calculator-card slide-up" style="animation-delay: 0.4s">
+      <!-- Card Header -->
+      <div class="header-gradient p-6">
+        <h2 class="text-2xl font-bold text-center animate-typing">Calculate Your Guaranteed Earnings</h2>
+      </div>
+      
+      <!-- Calculator Form -->
+      <div class="p-8">
+        <div class="space-y-6">
+          <!-- Base Pay -->
+          <div class="input-group">
+            <label for="basePay" class="block text-sm font-medium text-gray-700 mb-2">Base Pay</label>
+            <div class="relative">
+              <div class="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <input 
+                type="number" 
+                id="basePay" 
+                class="input-field input-with-icon w-full p-3 pl-10" 
+                placeholder="Enter base pay from app"
+                step="0.01"
+                min="0"
+              >
+            </div>
+            <p class="mt-1 text-xs text-gray-500">The amount you received from the app before tips</p>
+          </div>
+
+          <!-- Customer Tip -->
+          <div class="input-group">
+            <label for="tip" class="block text-sm font-medium text-gray-700 mb-2">Customer Tip</label>
+            <div class="relative">
+              <div class="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <input 
+                type="number" 
+                id="tip" 
+                class="input-field input-with-icon w-full p-3 pl-10" 
+                placeholder="Enter customer tip"
+                step="0.01"
+                min="0"
+              >
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Tips are not included in the minimum earnings calculation</p>
+          </div>
+
+          <!-- Active Time -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Active Time
+              <span class="tooltip ml-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="tooltip-text">Time spent actively engaged in deliveries, from accepting to completing</span>
+              </span>
+            </label>
+            <div class="grid grid-cols-3 gap-3">
+              <div class="relative">
+                <div class="input-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <input 
+                  type="number" 
+                  id="hours" 
+                  class="input-field input-with-icon w-full p-3 pl-10" 
+                  placeholder="Hours"
+                  min="0"
+                >
+              </div>
+              <div class="relative">
+                <div class="input-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <input 
+                  type="number" 
+                  id="minutes" 
+                  class="input-field input-with-icon w-full p-3 pl-10" 
+                  placeholder="Minutes"
+                  min="0"
+                  max="59"
+                >
+              </div>
+              <div class="relative">
+                <div class="input-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <input 
+                  type="number" 
+                  id="seconds" 
+                  class="input-field input-with-icon w-full p-3 pl-10" 
+                  placeholder="Seconds"
+                  min="0"
+                  max="59"
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Miles Driven -->
+          <div class="input-group">
+            <label for="miles" class="block text-sm font-medium text-gray-700 mb-2">
+              Miles Driven
+              <span class="tooltip ml-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="tooltip-text">Total miles driven during active delivery time</span>
+              </span>
+            </label>
+            <div class="relative">
+              <div class="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <input 
+                type="number" 
+                id="miles" 
+                class="input-field input-with-icon w-full p-3 pl-10" 
+                placeholder="Enter miles driven"
+                step="0.1"
+                min="0"
+              >
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Mileage compensation is $0.36 per mile</p>
+          </div>
+
+          <!-- Calculate Button -->
+          <button
+            id="calculateBtn"
+            onclick="calculateGuarantee()"
+            class="calculate-btn w-full text-lg font-semibold py-4 px-6 rounded-xl text-white shadow-lg flex items-center justify-center gap-2 mt-6"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            Calculate Adjustment
+          </button>
+        </div>
+
+        <!-- Results Section -->
+        <div id="result" class="result-card mt-8 p-6 hidden">
+          <h3 class="text-xl font-bold text-green-800 mb-4 text-center">Your Earnings Breakdown</h3>
+          
+          <div class="space-y-3">
+            <div class="result-item">
+              <span class="result-label">Minimum Guaranteed Earnings:</span>
+              <span id="minEarnings" class="result-value float-right"></span>
+              <div class="clear-both"></div>
+            </div>
+            
+            <div class="result-item">
+              <span class="result-label">Adjustment Due:</span>
+              <span id="adjustment" class="result-value float-right"></span>
+              <div class="clear-both"></div>
+            </div>
+            
+            <div class="result-item">
+              <span class="result-label">Total Earnings (with adjustment):</span>
+              <span id="totalAdjusted" class="result-value float-right"></span>
+              <div class="clear-both"></div>
+            </div>
+            
+            <div class="result-item bg-blue-50 border-blue-200">
+              <span class="result-label text-blue-800">Total Earnings Including Tip:</span>
+              <span id="totalWithTip" class="result-value text-blue-800 float-right"></span>
+              <div class="clear-both"></div>
+            </div>
+          </div>
+          
+          <div class="mt-6 text-center">
+            <button onclick="resetCalculator()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition">
+              Reset Calculator
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <div class="p-6 border-t border-gray-100 text-center">
+        <p class="text-sm text-gray-500">
+          Built by Joe Jimenez • <span class="text-blue-600">California Prop 22</span> • <span id="currentYear"></span>
+        </p>
+      </div>
+    </div>
+    
+    <!-- Info Card -->
+    <div class="mt-8 bg-white rounded-xl p-6 shadow-md slide-up" style="animation-delay: 0.6s">
+      <h3 class="text-lg font-semibold text-gray-800 mb-2">About Prop 22 Calculator</h3>
+      <p class="text-gray-600">
+        This calculator helps gig workers in California determine their minimum guaranteed earnings under Proposition 22.
+        The guaranteed minimum is calculated based on 120% of minimum wage for active time plus $0.36 per mile.
+        Tips are not included in the minimum earnings calculation but are added to your total earnings.
+      </p>
     </div>
   </div>
 
+  <!-- Script -->
   <script>
+    // Set current year in footer
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+    
+    // Format currency
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2
+      }).format(amount);
+    }
+    
+    // Calculate guarantee
     function calculateGuarantee() {
+      // Get input values
       const basePay = parseFloat(document.getElementById('basePay').value) || 0;
       const tip = parseFloat(document.getElementById('tip').value) || 0;
       const hours = parseFloat(document.getElementById('hours').value) || 0;
       const minutes = parseFloat(document.getElementById('minutes').value) || 0;
       const seconds = parseFloat(document.getElementById('seconds').value) || 0;
       const miles = parseFloat(document.getElementById('miles').value) || 0;
-
+      
+      // Validate inputs
+      if (basePay < 0 || tip < 0 || hours < 0 || minutes < 0 || seconds < 0 || miles < 0) {
+        alert('Please enter valid positive numbers for all fields.');
+        return;
+      }
+      
+      if (minutes > 59 || seconds > 59) {
+        alert('Minutes and seconds must be between 0 and 59.');
+        return;
+      }
+      
+      // Calculate active time in hours
       const activeTime = hours + (minutes / 60) + (seconds / 3600);
-      const guaranteedHourlyRate = 19.80;
+      
+      // Constants
+      const guaranteedHourlyRate = 19.80; // 120% of minimum wage
       const mileageRate = 0.36;
-
+      
+      // Calculate earnings
       const timeEarnings = activeTime * guaranteedHourlyRate;
       const mileageEarnings = miles * mileageRate;
       const minimumEarnings = timeEarnings + mileageEarnings;
       const adjustment = Math.max(0, minimumEarnings - basePay);
       const totalAdjusted = basePay + adjustment;
       const totalWithTip = totalAdjusted + tip;
-
-      const result = document.getElementById('result');
-      result.innerHTML = `
-        Minimum Guaranteed Earnings: $${minimumEarnings.toFixed(2)}<br>
-        Adjustment Due: $${adjustment.toFixed(2)}<br>
-        Total Earnings (with adjustment): $${totalAdjusted.toFixed(2)}<br>
-        <span class="text-blue-700">Total Earnings Including Tip: $${totalWithTip.toFixed(2)}</span>
-      `;
-      result.classList.remove('hidden');
+      
+      // Update result elements
+      document.getElementById('minEarnings').textContent = formatCurrency(minimumEarnings);
+      document.getElementById('adjustment').textContent = formatCurrency(adjustment);
+      document.getElementById('totalAdjusted').textContent = formatCurrency(totalAdjusted);
+      document.getElementById('totalWithTip').textContent = formatCurrency(totalWithTip);
+      
+      // Show result card with animation
+      const resultCard = document.getElementById('result');
+      resultCard.classList.remove('hidden');
+      setTimeout(() => {
+        resultCard.classList.add('show');
+      }, 10);
+      
+      // Scroll to results
+      resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      
+      // Add pulse animation to the adjustment amount if it's greater than 0
+      if (adjustment > 0) {
+        document.getElementById('adjustment').classList.add('pulse');
+      } else {
+        document.getElementById('adjustment').classList.remove('pulse');
+      }
     }
+    
+    // Reset calculator
+    function resetCalculator() {
+      // Clear all input fields
+      document.getElementById('basePay').value = '';
+      document.getElementById('tip').value = '';
+      document.getElementById('hours').value = '';
+      document.getElementById('minutes').value = '';
+      document.getElementById('seconds').value = '';
+      document.getElementById('miles').value = '';
+      
+      // Hide result card
+      const resultCard = document.getElementById('result');
+      resultCard.classList.remove('show');
+      setTimeout(() => {
+        resultCard.classList.add('hidden');
+      }, 300);
+      
+      // Focus on first input
+      document.getElementById('basePay').focus();
+    }
+    
+    // Add input validation
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+      input.addEventListener('input', function() {
+        if (this.value < 0) {
+          this.value = 0;
+        }
+        
+        if ((this.id === 'minutes' || this.id === 'seconds') && this.value > 59) {
+          this.value = 59;
+        }
+      });
+    });
+    
+    // Add keyboard support
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        calculateGuarantee();
+      }
+    });
   </script>
 </body>
 </html>
