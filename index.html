@@ -182,7 +182,7 @@
       overflow: hidden;
       white-space: nowrap;
       border-right: 3px solid #3b82f6;
-      animation: typing 3s steps(40) 1s 1 normal both, blink 1s steps(1) infinite;
+      animation: typing 3s steps(40) forwards, blink 1s steps(1) 8;
       width: 0;
     }
     
@@ -193,6 +193,10 @@
     
     @keyframes blink {
       50% { border-color: transparent }
+    }
+    
+    .no-cursor {
+      border-right: none;
     }
   </style>
 </head>
@@ -209,7 +213,7 @@
         </div>
       </div>
       <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-        Calculate your minimum guaranteed earnings under California Prop 22 legislation
+        Calculate your minimum guaranteed earnings
       </p>
       <div class="mt-4 flex justify-center">
         <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
@@ -226,7 +230,7 @@
     <div class="calculator-card slide-up" style="animation-delay: 0.4s">
       <!-- Card Header -->
       <div class="header-gradient p-6">
-        <h2 class="text-2xl font-bold text-center animate-typing">Calculate Your Guaranteed Earnings</h2>
+        <h2 id="typingHeader" class="text-2xl font-bold text-center animate-typing">Calculate Your Earnings</h2>
       </div>
       
       <!-- Calculator Form -->
@@ -436,6 +440,14 @@
   <script>
     // Set current year in footer
     document.getElementById('currentYear').textContent = new Date().getFullYear();
+    
+    // Remove cursor after typing animation completes
+    setTimeout(() => {
+      const typingHeader = document.getElementById('typingHeader');
+      if (typingHeader) {
+        typingHeader.classList.add('no-cursor');
+      }
+    }, 3000); // Match this to the duration of your typing animation
     
     // Format currency
     function formatCurrency(amount) {
